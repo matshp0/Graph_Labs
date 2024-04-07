@@ -18,13 +18,19 @@ drawBackground();
 
 const canvas = document.getElementById('myCanvas');
 
-let f = true;
-const graph = new Graph();
+let f = false;
+const graph = new Graph(config.NODES_NUMBER);
 const graphPainter = new GraphPainter(graph, canvas);
-graphPainter.drawNodes(f);
+graphPainter.drawUndirectedGraph(f);
 
 document.addEventListener('keydown', function(event) {
     drawBackground();
-    graphPainter.drawNodes(f);
+    if (f) {
+        //graphPainter.drawLoop(0);
+        graphPainter.drawUndirectedGraph(f);
+    }
+    else
+        graphPainter.drawDirectedGraph(f);
+
     f = !f;
 });
