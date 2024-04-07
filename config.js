@@ -1,5 +1,5 @@
 const NODES_NUMBER = 12;
-const K = 1 - 2 * 0.02 - 5 * 0.005 - 0.25;
+const K = 100//1 - 2 * 0.02 - 5 * 0.005 - 0.25;
 
 const EDGES = 3;
 const TOTAL_LENGTH = 2100;
@@ -9,6 +9,7 @@ const LENGTH = TOTAL_LENGTH / EDGES;
 const NODE_RADIUS = 20;
 const FONT_SIZE = 20;
 const NODE_COLOUR = 'white';
+const ARROW_SIZE = 10;
 
 const BACKGROUND_COLOUR = 'black';
 const NODE_FILL_STYLE = BACKGROUND_COLOUR;
@@ -26,4 +27,5 @@ export default {
     NODE_COLOUR,
     BACKGROUND_COLOUR,
     NODE_FILL_STYLE,
+    ARROW_SIZE,
 }

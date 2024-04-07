@@ -3,8 +3,8 @@ import config from "./config.js";
 
 
 class Graph{
-    constructor() {
-        this.numberOfNodes = config.NODES_NUMBER;
+    constructor(n) {
+        this.numberOfNodes = n;
         this.nodesPosition = [];
         this.createDirectedMatrix();
         this.createUndirectedMatrix();
