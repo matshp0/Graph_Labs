@@ -163,6 +163,22 @@ function drawCircle(ctx, point, radius, angleInDegrees) {
     ctx.stroke();
 }
 
+function seededRandom(seed) {
+    // Define parameters for the LCG algorithm
+    const a = 1664525;
+    const c = 1013904223;
+    const m = Math.pow(2, 32);
+
+    let currentSeed = seed % m;
+
+    function random() {
+        currentSeed = (a * currentSeed + c) % m;
+        return currentSeed / m;
+    }
+
+    return random;
+}
+
 
 export default {
     printMatrix,
@@ -174,5 +190,6 @@ export default {
     drawStraightLine,
     drawQuadraticCurveWithArrow,
     drawCircle,
+    seededRandom,
 
 }

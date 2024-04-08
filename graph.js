@@ -14,10 +14,11 @@ class Graph{
 
     createDirectedMatrix(){
         this.directedMatrix = [];
+        const random = utils.seededRandom(123);
         for (let i = 0; i < this.numberOfNodes; i++){
             const row = [];
             for (let j = 0; j < this.numberOfNodes; j++){
-                const value = Math.random() * 2 * config.K;
+                const value =  random() * 2 * config.K;
                 if (value >= 1)
                     row.push(1);
                 else

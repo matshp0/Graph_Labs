@@ -1,5 +1,5 @@
 const NODES_NUMBER = 12;
-const K = 100//1 - 2 * 0.02 - 5 * 0.005 - 0.25;
+const K = 1 - 2 * 0.02 - 5 * 0.005 - 0.25;
 
 const EDGES = 3;
 const TOTAL_LENGTH = 2100;
