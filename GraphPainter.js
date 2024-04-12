@@ -13,8 +13,8 @@ class GraphPainter{
         this.n = this.graph.numberOfNodes;
         this.isDrawn = utils.fillMatrix([], this.n);
         this.curvedLinePainter = {0 : (a, b, directed, isOnly) =>{
-                const k = isOnly ? 1.2 : 1.4;
-                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.max(b.x, a.x) * k, Math.min(b.y, a.y) * 1.2), directed);
+                const k = isOnly ? 1.1 : 1.2;
+                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.max(b.x, a.x) * k, Math.min(b.y, a.y) * 0.8 ), directed);
             },
             1: (a, b, directed, isOnly) =>{
                 const k = isOnly ? 1.3 : 1.5;
@@ -62,7 +62,6 @@ class GraphPainter{
                 currentEdge++;
             }
         }
-        utils.logPoints(this.nodesPos);
     }
     drawNodes(){
         for (let i = 0; i < this.n; i++){
@@ -70,10 +69,15 @@ class GraphPainter{
         }
 
     }
-
+    draw(){
+        if (this.graph.directed)
+            this.drawDirectedGraph();
+        else
+            this.drawUndirectedGraph();
+    }
 
     drawDirectedGraph(){
-        const matrix = this.graph.directedMatrix;
+        const matrix = this.graph.adjacencyMatrix;
         this.isDrawn = utils.fillMatrix([], this.n);
         for (let i = 0; i < this.n; i++){
             for (let j = 0; j < this.n; j++) {
@@ -118,7 +122,7 @@ class GraphPainter{
 
 
     drawUndirectedGraph(){
-        const matrix = this.graph.undirectedMatrix
+        const matrix = this.graph.adjacencyMatrix;
         for (let i = 0; i < this.n; i++){
             for (let j = i; j < this.n; j++){
                 if (!matrix[i][j]) continue;

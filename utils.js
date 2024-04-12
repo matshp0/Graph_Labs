@@ -164,7 +164,6 @@ function drawCircle(ctx, point, radius, angleInDegrees) {
 }
 
 function seededRandom(seed) {
-    // Define parameters for the LCG algorithm
     const a = 1664525;
     const c = 1013904223;
     const m = Math.pow(2, 32);
