@@ -72,8 +72,8 @@ document.addEventListener('keydown', function(event) {
         console.log("Outdegree", directedGraph1.outDegree);
         console.log("Reachability matrix : ")
         directedGraph.reachabilityMatrix.print();
-        console.log("Length 2 paths", directedGraph.findAllPaths(2));
-        console.log("Length 3 paths", directedGraph.findAllPaths(3));
+        console.log("Length 2 paths", directedGraph1.findAllPaths(2));
+        console.log("Length 3 paths", directedGraph1.findAllPaths(3));
         console.log("Matrix of strong connectivity : ");
         directedGraph1.matrixOfStrongConnectivity.print();
         console.log("Components of strong connectivity : ");
