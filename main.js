@@ -46,7 +46,7 @@ document.addEventListener('keydown', function(event) {
         console.log("outDegree : ", directedGraph.outDegree);
         console.log("inDegree : ", directedGraph.inDegree);
         console.log("Regular degree : ", directedGraph.findRegularDegree());
-        console.log("Terminated vertexes : ", directedGraph.terminalVertexes);
+        console.log("Pendant vertexes : ", directedGraph.terminalVertexes);
         console.log("Isolated vertexes : ", directedGraph.isolatedVertexes);
 
     }
@@ -58,7 +58,7 @@ document.addEventListener('keydown', function(event) {
         undirectedGraph.adjacencyMatrix.print();
         console.log("Vertices degrees : ", undirectedGraph.verticesDegree);
         console.log("Regular degree : ", directedGraph.findRegularDegree());
-        console.log("Terminated vertexes : ", directedGraph.terminalVertexes);
+        console.log("Pendant vertexes : ", directedGraph.terminalVertexes);
         console.log("Isolated vertexes : ", directedGraph.isolatedVertexes);
 
     }

@@ -31,10 +31,18 @@ class Graph{
 
     calculateVerticesDegree(){
         this.verticesDegree = [];
-        for (const row of this.adjacencyMatrix) {
+        for (let j = 0; j < this.numberOfNodes; j++) {
             let degree = 0;
             for (let i = 0; i < this.numberOfNodes; i++) {
-                if (row[i]) degree++;
+                if (this.adjacencyMatrix[j][i]) {
+                    if (!this.directed && i === j){
+                        degree += 2;
+                    }
+                    else
+                        degree++
+                };
+
+
             }
             this.verticesDegree.push(degree);
         }
@@ -110,15 +118,12 @@ class Graph{
         for(let row = 0; row < this.matrixOfStrongConnectivity.length; row++) {
             let f = -1;
             for(let i = 0; i < components.length; i++) {
-                if(Matrix.isEqual(components[i].component, this.matrixOfStrongConnectivity[row])) {
+                if(Matrix.isEqual(components[i].element, this.matrixOfStrongConnectivity[row])) {
                     f = i;
                 }
             }
             if(f >= 0) components[f].rows.push(row + 1);
-            else(components.push({
-                component: this.matrixOfStrongConnectivity[row],
-                rows: [row + 1],
-            }))
+            else(components.push({element: this.matrixOfStrongConnectivity[row], rows: [row + 1]}))
         }
 
         this.componentsOfStrongConnectivity = [];
