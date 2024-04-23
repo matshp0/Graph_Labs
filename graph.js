@@ -190,6 +190,45 @@ class Graph{
 
     }
 
+    findStartNode(visited){
+        for (let i = 0; i < this.adjacencyMatrix.length; i++){
+            if (!visited[i] && this.adjacencyMatrix[i].findIndex((e) => !!e) !== -1)
+                return i;
+        }
+        return visited.findIndex((e) => !e);
+    }
+
+
+    DFS() {
+        const adjacencyMatrix = this.adjacencyMatrix;
+        const visited = new Array(this.adjacencyMatrix.length).fill(false);
+        const stack = [];
+        const result = [];
+        let path = []
+        let currentNode = this.findStartNode(visited);
+        function visit(node) {
+            visited[node] = true;
+            path.push(node);
+            for (let nextNode = adjacencyMatrix.length - 1; nextNode >= 0; nextNode--) {
+                if (adjacencyMatrix[node][nextNode] === 1 && !visited[nextNode]) {
+                    stack.push(nextNode);
+                }
+            }
+        }
+        while (currentNode !== -1) {
+            path = [];
+            stack.push(currentNode);
+            while (stack.length > 0) {
+                const node = stack.pop();
+                if (!visited[node]) {
+                    visit(node);
+                }
+            }
+            result.push([...path]);
+            currentNode = this.findStartNode(visited);
+        }
+        return result;
+    }
 }
 
 

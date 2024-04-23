@@ -1,18 +1,6 @@
 import { Point } from "./Point.js"
 import config from "./config.js";
 
-function printMatrix(matrix) {
-    console.log('-------------------------------------');
-    for (let i = 0; i < matrix.length; i++) {
-        let row = '';
-        for (let j = 0; j < matrix[i].length; j++) {
-            row += matrix[i][j] + '\t';
-        }
-        console.log(row);
-    }
-    console.log('-------------------------------------');
-}
-
 function fillMatrix(matrix, n, a = 0){
     for (let i = 0; i < n; i++){
         const row = [];
@@ -22,6 +10,15 @@ function fillMatrix(matrix, n, a = 0){
         matrix.push(row);
     }
     return matrix
+}
+
+
+function drawBackground(canvas) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+    ctx.fillStyle = config.BACKGROUND_COLOUR;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function copyMatrix(matrix) {
@@ -50,13 +47,13 @@ function logPoints(points) {
     });
 }
 
-function drawNumberedCircle(ctx, pos, number) {
+function drawNumberedCircle(ctx, pos, number, colour = config.NODE_FILL_STYLE) {
     ctx.strokeStyle = config.NODE_COLOUR;
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, config.NODE_RADIUS, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.fillStyle = config.NODE_FILL_STYLE;
+    ctx.fillStyle = colour;
     ctx.fill();
 
     ctx.fillStyle = config.NODE_COLOUR;
@@ -67,9 +64,9 @@ function drawNumberedCircle(ctx, pos, number) {
 }
 
 
-function drawStraightLine(ctx, startPoint, endPoint, directed) {
-    ctx.fillStyle = config.NODE_COLOUR;
-    ctx.strokeStyle = config.NODE_COLOUR
+function drawStraightLine(ctx, startPoint, endPoint, directed, colour = config.ARROW_COLOUR) {
+    ctx.fillStyle = colour;
+    ctx.strokeStyle = colour;
     const arrowSize = 10;
     const pullBackDistance = 20;
     const lineLength = Math.sqrt(Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2));
@@ -101,9 +98,9 @@ function drawStraightLine(ctx, startPoint, endPoint, directed) {
     ctx.restore();
 }
 
-function drawQuadraticCurveWithArrow1(ctx, startPoint, endPoint, controlPoint, directed) {
-    ctx.strokeStyle = config.NODE_COLOUR;
-    ctx.fillStyle = config.NODE_COLOUR;
+function drawQuadraticCurveWithArrow1(ctx, startPoint, endPoint, controlPoint, directed, colour) {
+    ctx.strokeStyle = colour;
+    ctx.fillStyle = colour;
     const t = 1;
     const x = Math.pow(1 - t, 2) * startPoint.x + 2 * (1 - t) * t * controlPoint.x + Math.pow(t, 2) * endPoint.x;
     const y = Math.pow(1 - t, 2) * startPoint.y + 2 * (1 - t) * t * controlPoint.y + Math.pow(t, 2) * endPoint.y;
@@ -130,10 +127,10 @@ function drawQuadraticCurveWithArrow1(ctx, startPoint, endPoint, controlPoint, d
     ctx.restore();
 }
 
-function drawQuadraticCurveWithArrow(ctx, startPoint, endPoint, controlPoint, directed){
+function drawQuadraticCurveWithArrow(ctx, startPoint, endPoint, controlPoint, directed, colour){
     let point1;
     point1 = findPointOnCircle(controlPoint, endPoint, directed);
-    drawQuadraticCurveWithArrow1(ctx, startPoint, point1, controlPoint, directed);
+    drawQuadraticCurveWithArrow1(ctx, startPoint, point1, controlPoint, directed, colour);
 }
 
 function findPointOnCircle(startPoint, endPoint, directed) {
@@ -152,8 +149,8 @@ function findPointOnCircle(startPoint, endPoint, directed) {
     return new Point(newX, newY);
 }
 
-function drawCircle(ctx, point, radius, angleInDegrees) {
-    ctx.strokeStyle = config.NODE_COLOUR;
+function drawCircle(ctx, point, radius, angleInDegrees, colour=config.ARROW_COLOUR) {
+    ctx.strokeStyle = colour;
     const distance = 20;
     const angle = angleInDegrees * Math.PI / 180;
     const x = point.x + distance * Math.cos(angle);
@@ -180,7 +177,7 @@ function seededRandom(seed) {
 
 
 export default {
-    printMatrix,
+    drawBackground,
     fillMatrix,
     copyMatrix,
     calculateEndpoint,
