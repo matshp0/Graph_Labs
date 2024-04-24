@@ -1,5 +1,5 @@
 const NODES_NUMBER = 12;
-const K1 = 1 - 2 * 0.005 - 5 * 0.005 - 0.27;
+const K1 = 1 - 2 * 0.01 - 5 * 0.005 - 0.15;
 const K = 0.6;
 const SEED = 333;
 

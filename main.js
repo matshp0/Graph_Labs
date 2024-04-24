@@ -14,13 +14,10 @@ randomMatrix.randomFill(config.K);
 const directedGraph = new Graph(randomMatrix, true);
 const graphPainter = new GraphPainter(directedGraph, canvas);
 const generatorDFS = graphPainter.DFS(directedGraph.DFS());
-const generatorBFS = graphPainter.BFS(0);
+const generatorBFS = graphPainter.BFS();
+console.clear();
 utils.drawBackground(canvas);
 graphPainter.draw();
-console.log(directedGraph.DFS());
-
-//console.log(directedGraph.DFS());
-
 document.addEventListener('keydown', function(event) {
     //drawBackground();
 

@@ -1,6 +1,7 @@
 import { Point } from "./Point.js"
 import utils from "./utils.js"
 import config from "./config.js"
+import {Matrix} from "./Matrix.js";
 
 
 class GraphPainter{
@@ -196,11 +197,17 @@ class GraphPainter{
     }
 
     *DFS(paths){
+        console.clear();
+        this.graph.adjacencyMatrix.print();
+        console.log("DFS started");
+        const order = [];
         const visited = new Array(this.n).fill(false);
+        const searchMatrix = new Matrix(this.n);
         for (const list of paths){
             let current = 1;
             let previous = 0;
             visited[list[0]] = true;
+            order.push(list[0] + 1);
             this.drawColoredNodes(visited);
             yield ;
             while (current < list.length){
@@ -209,15 +216,20 @@ class GraphPainter{
                 }
                 else{
                     this.drawLine(list[previous], list[current], 'red');
+                    searchMatrix[list[previous]][list[current]] = 1;
                     visited[list[current]] = true;
+                    order.push(list[current] + 1);
                     this.drawColoredNodes(visited);
                     current++;
                     previous = current - 1;
                     yield ;
-
                 }
             }
+
         }
+        searchMatrix.print();
+        console.log("DFS finished");
+        console.log("Search order : ", order);
     }
 
     findStartNode(visited){
@@ -229,12 +241,18 @@ class GraphPainter{
     }
 
     *BFS(){
+        console.clear();
+        this.graph.adjacencyMatrix.print();
+        console.log("BFS started");
+        const order = [];
         let visited = [];
+        const searchMatrix = new Matrix(this.n);
         const adjMatrix = this.graph.adjacencyMatrix;
         for (let i = 0; i < adjMatrix.length; i++) {
             visited[i] = false;
         }
         let currentNode = this.findStartNode(visited)
+        order.push(currentNode + 1);
 
         while (currentNode !== -1) {
             const queue = [];
@@ -246,7 +264,9 @@ class GraphPainter{
                 let currentVertex = queue.shift();
                 for (let i = 0; i < adjMatrix[currentVertex].length; i++) {
                     if (adjMatrix[currentVertex][i] === 1 && !visited[i]) {
+                        searchMatrix[currentVertex][i] = 1;
                         this.drawLine(currentVertex, i, 'red');
+                        order.push(i + 1);
                         visited[i] = true;
                         this.drawColoredNodes(visited);
                         yield;
@@ -256,9 +276,10 @@ class GraphPainter{
             }
             currentNode = this.findStartNode(visited);
         }
+        searchMatrix.print();
+        console.log("BFS finished");
+        console.log("Search order : ", order);
     }
-
-
 }
 
 export { GraphPainter }
