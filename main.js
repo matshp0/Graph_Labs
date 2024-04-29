@@ -9,23 +9,19 @@ const canvas = document.getElementById('myCanvas');
 
 const randomMatrix = new Matrix(config.NODES_NUMBER);
 
-randomMatrix.randomFill(config.K);
+randomMatrix.randomFill(config.K * 2);
+randomMatrix.map((el) => el >= 1 ? 1 : 0);
 
 const directedGraph = new Graph(randomMatrix, true);
+Graph.createWeightedGraph(randomMatrix);
 const graphPainter = new GraphPainter(directedGraph, canvas);
-const generatorDFS = graphPainter.DFS(directedGraph.DFS());
-const generatorBFS = graphPainter.BFS();
-console.clear();
+
 utils.drawBackground(canvas);
 graphPainter.draw();
 document.addEventListener('keydown', function(event) {
     //drawBackground();
 
     if(event.key === 'Enter') {
-        generatorDFS.next();
-    }
-    if(event.key === ' ') {
-        generatorBFS.next();
-    }
 
+    }
 });

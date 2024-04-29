@@ -46,7 +46,7 @@ class Matrix extends Array {
         for (let i1 = 0; i1 < matrices.length; i1++){
             for (let i = 0; i < result.n; i++){
                 for (let j = 0; j < result.n; j++){
-                    result[i][j] = parseInt(result[i][j]) +  parseInt(matrices[i1][i][j]);
+                    result[i][j] = result[i][j] +  matrices[i1][i][j];
                 }
             }
         }
@@ -57,7 +57,7 @@ class Matrix extends Array {
         const result = new Matrix(matrix1.length);
         for (let i = 0; i < result.n; i++){
             for (let j = 0; j < result.n; j++){
-                result[i][j] = parseInt(matrix1[i][j]) * parseInt(matrix2[i][j]);
+                result[i][j] = matrix1[i][j] * matrix2[i][j];
             }
         }
         return result;
@@ -89,28 +89,26 @@ class Matrix extends Array {
         const random = utils.seededRandom(config.SEED);
         for (let i = 0; i < this.n; i++){
             for (let j = 0; j < this.n; j++){
-                const value =  random() * 2 * k;
-                if (value >= 1) {
-                    this[i][j] = 1;
-                }
-                else
-                    this[i][j] = 0;
+                this[i][j] = random() * k;
             }
         }
     }
 
-    static multiply(matrix1, matrix2) {
-        if (matrix1.length !== matrix2.length || matrix1[0].length !== matrix2[0].length) {
-            throw new Error('Matrices must be of the same size for multiplication');
+    static upperTriangular(n){
+        const result = new Matrix(n);
+        for (let i = 0; i < n; i++){
+            for (let j = i + 1; j < n; j++){
+                result[i][j] = 1;
+            }
         }
+        return result;
+    }
 
-        const result = new Matrix(matrix1.length);
-        for (let i = 0; i < matrix1.length; i++) {
-            for (let j = 0; j < matrix1[i].length; j++) {
-                result[i][j] = 0;
-                for (let k = 0; k < matrix1.length; k++) {
-                    result[i][j] += matrix1[i][k] * matrix2[k][j];
-                }
+    static multiply(matrix, k) {
+        const result = Matrix.fromArray(matrix);
+        for (let i = 0; i < matrix.n; i++){
+            for (let j = 0; j < matrix.n; j++){
+                result[i][j] *= k;
             }
         }
         return result;
@@ -125,6 +123,15 @@ class Matrix extends Array {
         return result;
     }
 
+    map(callback){
+        for (let i = 0; i < this.n; i++){
+            for (let j = 0; j < this.n; j++){
+                this[i][j] = callback(this[i][j]);
+            }
+        }
+
+    }
+
     print() {
         console.log('------------------------------------');
         for (let i = 0; i < this.length; i++) {
@@ -133,15 +140,6 @@ class Matrix extends Array {
         console.log('------------------------------------');
     }
 
-    sumUp(){
-        let sum = 0;
-        for (let i = 0; i < this.n; i++){
-            for (let j = 0; j< this.n; j++){
-                sum += this[i][j];
-            }
-        }
-        return sum;
-    }
 
 
 }

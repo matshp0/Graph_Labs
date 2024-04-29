@@ -5,19 +5,37 @@ import { Matrix } from "./Matrix.js";
 
 class Graph{
     constructor(matrix, directed) {
+        this.weighted = false;
         this.adjacencyMatrix =  Matrix.fromArray(matrix);
         this.directed = directed;
         this.numberOfNodes = matrix.length;
         if (!this.directed)
             this.generateUndirectedMatrix()
-        this.calculateVerticesDegree();
-        if (this.directed){
-            this.findInOutDegree();
-            this.calculateReachabilityMatrix();
-            this.calculateStrongConnectivity();
-            this.calculateComponentsOfStrongConnectivity();
+    }
+
+    static createWeightedGraph(A){
+        const size = A.n;
+        const B = new Matrix(size);
+        B.randomFill(2);
+        const C = Matrix.multiply(Matrix.hadamardProduct(A, B), 100);
+        const H = new Matrix(size);
+        for (let i = 0; i < size; i++){
+            for (let j = 0; j < size; j++){
+                if (A[i][j] !== A[j][i])
+                    H[i][j] = 1;
+            }
         }
-        this.findTerminalAndIsolatedVertexes();
+        H.print();
+        const Tr = Matrix.upperTriangular(size);
+        Tr.print();
+        const sum = Matrix.sum([A, Matrix.hadamardProduct(H, Tr)]);
+        const product = Matrix.hadamardProduct(sum, C);
+        const result = new Graph(product, false);
+        result.weighted = true;
+        product.print();
+        return result;
+
+
     }
 
     generateUndirectedMatrix(){
@@ -128,107 +146,10 @@ class Graph{
 
     }
 
-    findPaths(paths, vertex, path, currentLengthOfPath, length){
-        if (currentLengthOfPath >= length) {
-            paths.push([...path]);
-            return;
-        }
-
-        for (let nextVertex = 0; nextVertex < this.numberOfNodes; nextVertex++) {
-            if (this.adjacencyMatrix[vertex][nextVertex]) {
-                path.push(nextVertex + 1);
-                this.findPaths(paths, nextVertex, path, currentLengthOfPath + 1, length);
-                path.pop();
-            }
-        }
-    }
-
-    findAllPaths(length){
-        const allPaths = [];
-        const result = [];
-
-        for (let vertex = 0; vertex < this.numberOfNodes; vertex++) {
-            const path = [vertex + 1];
-            this.findPaths(allPaths, vertex, path, 0, length);
-        }
-
-        for (const path of allPaths){
-            const a = [];
-            let f = true;
-            for (let i = 0; i < path.length - 1; i++){
-                const couple =  JSON.stringify([path[i], path[i + 1]])
-                if (a.includes(couple)){
-                    f = false;
-                    break;
-                }
-                a.push(couple);
-            }
-            if (f) result.push(path);
-        }
-        return result;
-    }
-
-    getCondensationGraph(){
-        const matrix = this.componentsOfStrongConnectivity;
-        const n = matrix.length;
-        const condensationMatrix = new Matrix(n)
-        for (let i = 0; i < n; i++){
-            for (let j = i + 1; j < n; j++){
-                const component1 = matrix[i];
-                const component2 = matrix[j];
-                for (let i1 = 0; i1 < component1.length; i1++){
-                    for (let j1 = 0; j1 < component2.length; j1++){
-                        if (this.adjacencyMatrix[component1[i1] - 1][component2[j1] - 1])
-                            condensationMatrix[i][j] = 1;
-                        if (this.adjacencyMatrix[component2[j1] - 1][component1[i1] - 1])
-                            condensationMatrix[j][i] = 1;
-                    }
-                }
-            }
-        }
-        return new Graph(condensationMatrix, 1);
-
-    }
-
-    findStartNode(visited){
-        for (let i = 0; i < this.adjacencyMatrix.length; i++){
-            if (!visited[i] && this.adjacencyMatrix[i].findIndex((e) => !!e) !== -1)
-                return i;
-        }
-        return visited.findIndex((e) => !e);
-    }
 
 
-    DFS() {
-        const adjacencyMatrix = this.adjacencyMatrix;
-        const visited = new Array(this.adjacencyMatrix.length).fill(false);
-        const stack = [];
-        const result = [];
-        let path = []
-        let currentNode = this.findStartNode(visited);
-        function visit(node) {
-            visited[node] = true;
-            path.push(node);
-            for (let nextNode = adjacencyMatrix.length - 1; nextNode >= 0; nextNode--) {
-                if (adjacencyMatrix[node][nextNode] === 1 && !visited[nextNode]) {
-                    stack.push(nextNode);
-                }
-            }
-        }
-        while (currentNode !== -1) {
-            path = [];
-            stack.push(currentNode);
-            while (stack.length > 0) {
-                const node = stack.pop();
-                if (!visited[node]) {
-                    visit(node);
-                }
-            }
-            result.push([...path]);
-            currentNode = this.findStartNode(visited);
-        }
-        return result;
-    }
+
+
 }
 
 
