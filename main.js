@@ -5,6 +5,7 @@ import { Matrix } from "./Matrix.js";
 import utils from "./utils.js"
 
 
+
 const canvas = document.getElementById('myCanvas');
 
 const randomMatrix = new Matrix(config.NODES_NUMBER);
@@ -12,16 +13,23 @@ const randomMatrix = new Matrix(config.NODES_NUMBER);
 randomMatrix.randomFill(config.K * 2);
 randomMatrix.map((el) => el >= 1 ? 1 : 0);
 
-const directedGraph = new Graph(randomMatrix, true);
-Graph.createWeightedGraph(randomMatrix);
-const graphPainter = new GraphPainter(directedGraph, canvas);
+const weightedGraph = Graph.createWeightedGraph(randomMatrix);
+const graphPainter = new GraphPainter(weightedGraph, canvas);
 
 utils.drawBackground(canvas);
 graphPainter.draw();
+const parent = weightedGraph.primMST(weightedGraph.adjacencyMatrix);
+const generator = graphPainter.primAlgorithm(parent);
+console.log(parent);
+
 document.addEventListener('keydown', function(event) {
     //drawBackground();
 
     if(event.key === 'Enter') {
-
+        const data = generator.next();
+        if (data.done){
+            console.log("Algorithm finished")
+            console.log("MST value : ", data.value);
+        }
     }
 });

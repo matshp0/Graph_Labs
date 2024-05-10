@@ -1,6 +1,7 @@
 import utils from "./utils.js"
 import config from "./config.js";
 import { Matrix } from "./Matrix.js";
+import Queue from "./Queue.js";
 
 
 class Graph{
@@ -14,25 +15,25 @@ class Graph{
     }
 
     static createWeightedGraph(A){
+        const random1 = utils.seededRandom(config.SEED - 1);
         const size = A.n;
         const B = new Matrix(size);
-        B.randomFill(2);
-        const C = Matrix.multiply(Matrix.hadamardProduct(A, B), 100);
-        const H = new Matrix(size);
+        const result = new Graph(A, 0);
+        result.generateUndirectedMatrix();
         for (let i = 0; i < size; i++){
             for (let j = 0; j < size; j++){
-                if (A[i][j] !== A[j][i])
-                    H[i][j] = 1;
+                result.adjacencyMatrix[i][j] *= (random1() * 200).toFixed(0);
             }
         }
-        H.print();
+        B.randomFill(200);
+        const C = Matrix.multiply(Matrix.hadamardProduct(A, B), 100);
+        const H = new Matrix(size);
         const Tr = Matrix.upperTriangular(size);
-        Tr.print();
         const sum = Matrix.sum([A, Matrix.hadamardProduct(H, Tr)]);
         const product = Matrix.hadamardProduct(sum, C);
-        const result = new Graph(product, false);
         result.weighted = true;
-        product.print();
+        result.adjacencyMatrix.reflect();
+        result.adjacencyMatrix.print();
         return result;
 
 
@@ -46,109 +47,45 @@ class Graph{
             }
         }
     }
-
-    calculateVerticesDegree(){
-        this.verticesDegree = [];
-        for (const row of this.adjacencyMatrix) {
-            let degree = 0;
-            for (let i = 0; i < this.numberOfNodes; i++) {
-                if (row[i]) degree++;
-            }
-            this.verticesDegree.push(degree);
+    primMST(graph) {
+        const n = graph.length;
+        const parent = new Array(n);
+        const key = new Array(n);
+        const mstSet = new Array(n);
+        for (let i = 0; i < n; i++) {
+            key[i] = Infinity;
+            mstSet[i] = false;
         }
-    }
-
-    findRegularDegree(){
-        if (!this.directed) {
-            for (let i = 0; i < this.verticesDegree.length; i++) {
-                if (this.verticesDegree[i] !== this.verticesDegree[0])
-                    return -1;
-            }
-            return this.verticesDegree[0];
-        }
-        const matrix = [...this.inDegree, ...this.outDegree];
-        for (let i = 0; i < matrix.length; i++) {
-            if (matrix[i] !== matrix[0])
-                return -1;
-        }
-        return matrix[0];
-
-    }
-
-    findInOutDegree(){
-        if (!this.directed) throw new Error("Graph must be directed");
-        this.inDegree = [];
-        this.outDegree = this.verticesDegree;
-        for (let i = 0; i < this.numberOfNodes; i++) {
-            let degree = 0;
-            for (let j = 0; j < this.numberOfNodes; j++) {
-                if (this.adjacencyMatrix[j][i]) degree++;
-            }
-            this.inDegree.push(degree);
-
-        }
-    }
-    findTerminalAndIsolatedVertexes(){
-        this.isolatedVertexes = [];
-        this.terminalVertexes = [];
-        if (this.directed) {
-            for (let  i = 0; i < this.numberOfNodes; i++){
-                if (this.inDegree[i] === 1 && this.outDegree[i] === 0) {
-                    this.terminalVertexes.push(i + 1);
-                }
-                if (this.inDegree[i] + this.outDegree[i] === 0)
-                    this.isolatedVertexes.push(i + 1)
-            }
-            return;
-        }
-        for (let  i = 0; i < this.numberOfNodes; i++){
-            if (this.verticesDegree[i] === 1)
-                this.terminalVertexes.push(i + 1);
-            if (!this.verticesDegree[i])
-                this.isolatedVertexes.push(i + 1);
-        }
-    }
-
-    calculateReachabilityMatrix(){
-        const poweredMatrices = [];
-        for (let i = 0; i < this.numberOfNodes; i++){
-            poweredMatrices.push(Matrix.pow(this.adjacencyMatrix, i));
-        }
-        this.reachabilityMatrix = Matrix.sum(poweredMatrices).bool();
-    }
-
-    calculateStrongConnectivity(){
-        const transposed = this.reachabilityMatrix.transpose();
-        this.matrixOfStrongConnectivity = Matrix.hadamardProduct(transposed, this.reachabilityMatrix);
-    }
-
-    calculateComponentsOfStrongConnectivity(){
-        const components = [];
-
-        for(let row = 0; row < this.matrixOfStrongConnectivity.length; row++) {
-            let f = -1;
-            for(let i = 0; i < components.length; i++) {
-                if(Matrix.isEqual(components[i].component, this.matrixOfStrongConnectivity[row])) {
-                    f = i;
+        key[0] = 0;
+        parent[0] = -1;
+        const queue = new Queue();
+        for (let count = 0; count < n; count++) {
+            const u = this.minKey(key, mstSet);
+            mstSet[u] = true;
+            if (parent[u] !== undefined)
+                queue.enqueue([parent[u] + 1, u + 1 ]);
+            for (let v = 0; v < n; v++) {
+                if (graph[u][v] && !mstSet[v] && graph[u][v] < key[v]) {
+                    parent[v] = u;
+                    key[v] = graph[u][v];
                 }
             }
-            if(f >= 0) components[f].rows.push(row + 1);
-            else(components.push({
-                component: this.matrixOfStrongConnectivity[row],
-                rows: [row + 1],
-            }))
         }
-
-        this.componentsOfStrongConnectivity = [];
-        for(const component of components) {
-            this.componentsOfStrongConnectivity.push(component.rows);
-        }
-
+        return queue;
     }
 
 
-
-
+    minKey(key, mstSet) {
+        let min = Infinity,
+            minIndex;
+        for (let v = 0; v < key.length; v++) {
+            if (mstSet[v] === false && key[v] < min) {
+                min = key[v];
+                minIndex = v;
+            }
+        }
+        return minIndex;
+    }
 
 }
 

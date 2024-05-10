@@ -1,8 +1,7 @@
 import { Point } from "./Point.js"
 import utils from "./utils.js"
 import config from "./config.js"
-import {Matrix} from "./Matrix.js";
-
+import Queue from "./Queue.js";
 
 class GraphPainter{
     constructor(graph, canvas) {
@@ -13,20 +12,20 @@ class GraphPainter{
         this.canvasWidth = canvas.width;
         this.n = this.graph.numberOfNodes;
         this.isDrawn = utils.fillMatrix([], this.n);
-        this.curvedLinePainter = {0 : (a, b, directed, isOnly, colour) =>{
+        this.curvedLinePainter = {0 : (a, b, directed, isOnly, colour, number) =>{
                 const k = isOnly ? 1.1 : 1.2;
-                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.max(b.x, a.x) * k, Math.min(b.y, a.y) * 0.8 ), directed, colour);
+                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.max(b.x, a.x) * k, Math.min(b.y, a.y) * 0.8 ), directed, colour, number);
             },
-            1: (a, b, directed, isOnly, colour) =>{
+            1: (a, b, directed, isOnly, colour, number) =>{
                 const k = isOnly ? 1.3 : 1.5;
-                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point((b.x + a.x)/ 2, a.y * k), directed, colour);
+                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point((b.x + a.x)/ 2, a.y * k), directed, colour, number);
             },
-            2: (a, b, directed, isOnly, colour) =>{
+            2: (a, b, directed, isOnly, colour, number) =>{
                 const k = isOnly ? 0.7 : 0.9;
-                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.min(b.x, a.x) * k, Math.min(b.y, a.y) * k), directed, colour);
+                utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.min(b.x, a.x) * k, Math.min(b.y, a.y) * k), directed, colour, number);
             },
-            '-1': (a, b, directed) =>{
-            utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.min(b.x, a.x), Math.min(b.y, a.y) * 1.2), directed);
+            '-1': (a, b, directed, number) =>{
+            utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(Math.min(b.x, a.x), Math.min(b.y, a.y) * 1.2), directed, number);
             }
         }
         this.calculateNodesPositions();
@@ -78,6 +77,11 @@ class GraphPainter{
     }
 
     draw(){
+        if (this.graph.weighted) {
+            this.drawWeightedGraph();
+            this.isDrawn = utils.fillMatrix([], this.n);
+            return;
+        }
         if (this.graph.directed)
             this.drawDirectedGraph();
         else
@@ -85,7 +89,7 @@ class GraphPainter{
         this.isDrawn = utils.fillMatrix([], this.n);
     }
 
-    drawLine(i, j, colour = config.ARROW_COLOUR){
+    drawLine(i, j, colour = config.ARROW_COLOUR, number){
         const a = this.nodesPos[i];
         const b = this.nodesPos[j];
         const isFirst = !this.isDrawn[j][i];
@@ -93,31 +97,46 @@ class GraphPainter{
         const type = this.findConnectionType(i, j);
         switch (type) {
             case 0:
-                this.drawLoop(i, colour);
+                //this.drawLoop(i, colour);
                 break;
             case 1:
                 if (isFirst) {
-                    utils.drawStraightLine(this.ctx, a, b, 1, colour);
+                    utils.drawStraightLine(this.ctx, a, b, 1, colour, number);
                 } else {
-                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 0, colour);
+                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 0, colour, number);
                 }
                 break;
             case 2:
                 if (isFirst) {
-                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 1, colour);
+                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 1, colour, number);
                 }
                 else {
-                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 0, colour);
+                    this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 1, 0, colour, number);
                 }
                 break;
             case 3:
                 if (isFirst) {
-                    utils.drawStraightLine(this.ctx, a, b, 1, colour);
+                    utils.drawStraightLine(this.ctx, a, b, 1, colour, number);
                 } else {
-                    utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(this.canvasWidth/2, this.canvasHeight/2), 1, colour);
+                    utils.drawQuadraticCurveWithArrow(this.ctx, a, b, new Point(this.canvasWidth/2, this.canvasHeight/2), 1, colour, number);
                 }
                 break;
         }
+    }
+
+    drawWeightedGraph(colour){
+        colour = 'white';
+        const matrix = this.graph.adjacencyMatrix;
+        this.isDrawn = utils.fillMatrix([], this.n);
+        for (let i = 0; i < this.n; i++){
+            for (let j = i; j < this.n; j++) {
+                if (!matrix[i][j]) continue;
+                this.drawLine(i, j, colour, matrix[i][j]);
+
+            }
+        }
+        this.drawNodes();
+
     }
 
     drawDirectedGraph(){
@@ -145,7 +164,7 @@ class GraphPainter{
                 const a = this.nodesPos[i];
                 const b = this.nodesPos[j];
                 if (this.isConnectionStraight(i, j)) {
-                    utils.drawStraightLine(this.ctx, a, b, 0);
+                    utils.drawStraightLine(this.ctx, a, b, 0, matrix[i][j]);
                 }
                 else{
                     this.curvedLinePainter[this.findCommonEdge(i, j)](a, b, 0, 1)
@@ -195,6 +214,28 @@ class GraphPainter{
         }
         return 3;
     }
+
+    *primAlgorithm(queue){
+        queue.dequeue();
+        let sum = 0;
+        const visited = new Array(this.n).fill(0);
+        while (true){
+            const edge = queue.dequeue();
+            if (!edge)
+                return sum;
+
+            this.drawLine(edge[0] - 1, edge[1] - 1, 'red');
+            sum += this.graph.adjacencyMatrix[edge[0] - 1][edge[1] - 1];
+            console.log(edge, this.graph.adjacencyMatrix[edge[0] - 1][edge[1] - 1]);
+            visited[edge[0] - 1] = 1;
+            visited[edge[1] - 1] = 1;
+
+            this.drawColoredNodes(visited);
+
+            yield sum;
+        }
+    }
+    
 }
 
 export { GraphPainter }

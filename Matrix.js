@@ -132,6 +132,14 @@ class Matrix extends Array {
 
     }
 
+    reflect(){
+        for (let i = 0; i < this.n; i++){
+            for (let j = i; j < this.n; j++){
+                this[j][i] = this[i][j]
+            }
+        }
+    }
+
     print() {
         console.log('------------------------------------');
         for (let i = 0; i < this.length; i++) {
